@@ -1,0 +1,164 @@
+{
+  "name": "Lead Capture & Qualification Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "53363a42-ceeb-44ec-9303-7ea804631643",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1020390f-48cc-4815-aff6-c7404a0c5883",
+      "name": "Receive Lead Data",
+      "webhookId": "53363a42-ceeb-44ec-9303-7ea804631643"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1dOXb46xnfqq8CVYjVHp6VPY3vns1NA_460V6IprIQM0",
+          "mode": "list",
+          "cachedResultName": "N8N sample",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1dOXb46xnfqq8CVYjVHp6VPY3vns1NA_460V6IprIQM0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.email }}",
+            "Lead Type": "={{$json.lead_type}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Type",
+              "displayName": "Lead Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        0
+      ],
+      "id": "d8b5a34f-fcbe-4821-838f-d558012eb15d",
+      "name": "Save Lead to Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "zJxRHGzbkarvHegi",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e45af0cc-c23b-4cf4-87f2-b02e42cbb125",
+              "name": "lead_type",
+              "value": "={{ $json.email.includes(\"gmail\") || $json.email.includes(\"yahoo\") ? \"Normal Lead\" : \"Priority Lead\" }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "7afdab1f-3582-456d-8005-511625a1d3ea",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "Receive Lead Data": [
+      {
+        "json": {
+          "name": "Hitaeshi",
+          "email": "test@email.com"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Receive Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Save Lead to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "17f7aceb-1aa0-4f02-9ea7-ddfde0d46a0d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e9efb604f557c4b5c58e62376faa1a9121f6a1f767ce3babe9e0a414efcea93"
+  },
+  "id": "gU6HeBEfUNsJ3YKd",
+  "tags": []
+}

@@ -1,0 +1,432 @@
+{
+  "name": "AI Lead Qualification System",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0f028c94-a96c-45b3-b5e9-4518c6b9579f",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4f6fa066-a459-4f0a-aac2-22f14d919ce0",
+      "name": "Webhook",
+      "webhookId": "0f028c94-a96c-45b3-b5e9-4518c6b9579f"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fa53b90c-a07e-4a99-8d62-8d970762bd43",
+              "name": "name",
+              "value": "={{$json.body.name}}",
+              "type": "string"
+            },
+            {
+              "id": "f5838376-8248-497d-8209-bdbdcf33c1ed",
+              "name": "email",
+              "value": "={{$json.body.email}}",
+              "type": "string"
+            },
+            {
+              "id": "a22ab5cd-99e7-469c-b1f2-8c969189c257",
+              "name": "timestamp",
+              "value": "={{$now}}",
+              "type": "string"
+            },
+            {
+              "id": "ed869749-2538-4028-ac9a-63d3aac33fea",
+              "name": "source",
+              "value": "webhook",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "790a1465-f41a-47b7-8e4e-cd171b3fd483",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "const name = $json.name || \"\";\nconst email = $json.email || \"\";\n\nlet score = 85;\nlet intent = \"medium\";\nlet reasoning = [];\n\n// Email domain scoring\nif (email.includes(\"gmail\") || email.includes(\"yahoo\")) {\n  score -= 10;\n  reasoning.push(\"Generic email domain\");\n} else {\n  score += 20;\n  reasoning.push(\"Business email domain\");\n}\n\n// Name validation\nif (name.length > 5) {\n  score += 10;\n  reasoning.push(\"Valid full name\");\n}\n\n// Final classification\nif (score >= 75) {\n  intent = \"high\";\n} else if (score >= 50) {\n  intent = \"medium\";\n} else {\n  intent = \"low\";\n}\n\nreturn [\n  {\n    json: {\n      name,\n      email,\n      lead_score: score,\n      intent,\n      reasoning: reasoning.join(\", \"),\n      next_action:\n        intent === \"high\"\n          ? \"Immediate sales follow-up\"\n          : intent === \"medium\"\n          ? \"Send nurturing email sequence\"\n          : \"Add to low-priority pipeline\",\n    },\n  },\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        0
+      ],
+      "id": "3ef9c418-788e-4a62-977d-4bb70cc92953",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "fc07732a-7267-49b2-b053-a25330cd686a",
+              "leftValue": "={{$json.lead_score}}",
+              "rightValue": 70,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        608,
+        0
+      ],
+      "id": "b2a60e6c-0409-4f89-8a76-b4d44fc24894",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1a-In-3z4UHgQgPQN5Wk2doa8j6ynWBp7T6wT4XDQioQ",
+          "mode": "list",
+          "cachedResultName": "AI Lead Qualification",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a-In-3z4UHgQgPQN5Wk2doa8j6ynWBp7T6wT4XDQioQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 502996173,
+          "mode": "list",
+          "cachedResultName": "Low_Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a-In-3z4UHgQgPQN5Wk2doa8j6ynWBp7T6wT4XDQioQ/edit#gid=502996173"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{$json.name}}",
+            "Email": "={{$json.email}}",
+            "Lead Score": "={{$json.lead_score}}",
+            "Intent ": "={{$json.intent}}",
+            "Reasoning": "={{$json.reasoning}}",
+            "Next Action ": "={{$json.next_action}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent ",
+              "displayName": "Intent ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reasoning",
+              "displayName": "Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Next Action ",
+              "displayName": "Next Action ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        816,
+        96
+      ],
+      "id": "9d244528-8a30-4c56-ba16-6bd27d89933e",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "LO5LnAhCDEwwCmyr",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1a-In-3z4UHgQgPQN5Wk2doa8j6ynWBp7T6wT4XDQioQ",
+          "mode": "list",
+          "cachedResultName": "AI Lead Qualification",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a-In-3z4UHgQgPQN5Wk2doa8j6ynWBp7T6wT4XDQioQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "High_Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1a-In-3z4UHgQgPQN5Wk2doa8j6ynWBp7T6wT4XDQioQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{$json.name}}",
+            "Email": "={{$json.email}}",
+            "Lead Score": "={{$json.lead_score}}",
+            "Intent ": "={{$json.intent}}",
+            "Reasoning": "={{$json.reasoning}}",
+            "Next Action ": "={{$json.next_action}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Score",
+              "displayName": "Lead Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Intent ",
+              "displayName": "Intent ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reasoning",
+              "displayName": "Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Next Action ",
+              "displayName": "Next Action ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        784,
+        -16
+      ],
+      "id": "4023c09e-e1a6-41d0-b6af-1c3ca1653d65",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "LO5LnAhCDEwwCmyr",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        976,
+        -16
+      ],
+      "id": "097c61ea-ea06-4fc7-8270-8d99adef71a9",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1024,
+        96
+      ],
+      "id": "4e6086fd-6ba9-431a-a20f-76fcdce2b74d",
+      "name": "Respond to Webhook1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a0f4f201-883d-4892-9c36-4e643b4b5ecd",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e9efb604f557c4b5c58e62376faa1a9121f6a1f767ce3babe9e0a414efcea93"
+  },
+  "id": "FqCnpBwmn303keEf",
+  "tags": []
+}

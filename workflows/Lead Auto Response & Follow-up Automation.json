@@ -1,0 +1,166 @@
+{
+  "name": "Lead Auto Response & Follow-up Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "1c237a39-a512-41c3-bbcc-42e442fdbc4f",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c460fb51-3265-44c8-b0c2-876835150c33",
+      "name": "Webhook",
+      "webhookId": "1c237a39-a512-41c3-bbcc-42e442fdbc4f"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8261de59-589b-4b66-a4d0-c1f4729e2012",
+              "name": "lead_type",
+              "value": "={{ $json.body.email.includes(\"gmail\") ? \"Priority Lead\" : \"Normal Lead\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1eac13c0-9234-42f9-a5f9-f6094b225019",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json.body.email}}",
+        "subject": "Thanks for reaching out",
+        "message": "=Hi {{$json.body.name}},Thanks for reaching out. We’ve received your request and will review it shortly.\n\nOur team will get back to you soon.\n\nBest regards,\nTeam",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "ea7b281b-1e68-4c81-9e13-84b3416a5efb",
+      "name": "Send a message",
+      "webhookId": "4b605b94-f8f4-4c55-bad6-1671a2cd90ec",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U1t9h9VSULAvAATM",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        0
+      ],
+      "id": "e169c647-af91-485e-bd87-b8263c37e29e",
+      "name": "Wait",
+      "webhookId": "3b3cc2ea-7baf-4fd7-b8ef-22437ade0a16"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$node[\"Webhook\"].json.body.email}}",
+        "subject": "Following up on your request",
+        "message": "=Hi {{$node[\"Webhook\"].json.body.name}},  Just following up to check if you had any additional details to share. Happy to help further.  Best regards, Team",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        0
+      ],
+      "id": "906aa94b-d768-40a1-a204-56c0f9f5d3f1",
+      "name": "Send a message1",
+      "webhookId": "aeca9a03-3939-474d-bcbe-9291f9fdb33b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "U1t9h9VSULAvAATM",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "82369294-709f-416a-9b6d-80f82019d214",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e9efb604f557c4b5c58e62376faa1a9121f6a1f767ce3babe9e0a414efcea93"
+  },
+  "id": "jHQBqJFNBHDqCD3n",
+  "tags": []
+}
