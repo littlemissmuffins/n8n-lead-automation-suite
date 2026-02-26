@@ -1,0 +1,491 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dda36bb6-b03b-4c29-8ae9-6ea6445cc4e5",
+              "name": "youtube_url",
+              "value": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+              "type": "string"
+            },
+            {
+              "id": "2f66ebb0-aeb5-47dc-9bf6-b92c28d1e075",
+              "name": "creator_name",
+              "value": "Rick Astley",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "85c31f6b-2331-45ec-ac96-2dd6c1e101fc",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  const url = item.json.youtube_url;\n\n  const videoId = url.split(\"v=\")[1]?.split(\"&\")[0];\n\n  item.json.video_id = videoId;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        0
+      ],
+      "id": "8eb89ad1-2a7c-4c61-85e9-f609c4b78ef8",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  const videoId = item.json.video_id;\n\n  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;\n\n  item.json.thumbnail_url = thumbnailUrl;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        864,
+        0
+      ],
+      "id": "7e296a7e-578c-4960-8c74-9e8d628b094f",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "url": "={{$json.thumbnail_url}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "c18763e3-776e-4e7b-b0e8-649e5d7a7e8d",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  const creator = item.json.creator_name;\n\n  const script = `\nHey everyone, this is ${creator}.\n\nToday I want to talk about something powerful.\n\nIf you're watching this, you're probably trying to improve your life in some way. And the truth is — growth is uncomfortable.\n\nSuccess doesn't come from motivation. It comes from discipline.\n\nEvery single day you either move forward or stay stuck.\n\nSo here's your reminder:\nStart small. Stay consistent. Trust the process.\n\nThe future version of you will thank you.\n`;\n\n  item.json.generated_script = script.trim();\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        0
+      ],
+      "id": "653c0f82-3025-46e9-8080-c822c1683d0b",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  item.json.final_payload = {\n    creator: item.json.creator_name,\n    video_id: item.json.video_id,\n    script: item.json.generated_script,\n    assets: {\n      thumbnail: item.binary?.data?.fileName || \"thumbnail.jpg\"\n    },\n    meta: {\n      generated_at: new Date().toISOString(),\n      system: \"AI Content Automation Engine v1\"\n    }\n  };\n\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1328,
+        0
+      ],
+      "id": "6937ffe0-307f-4124-9d9b-1c2b2eab3bc7",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mubhvlldetkfdjdbseid.supabase.co/rest/v1/generated_videos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTkyMjcsImV4cCI6MjA4NzIzNTIyN30.p2tQfvkTppxGfadpWbJtFaIlYhSe7YKfgv4YbtUEC5w"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTkyMjcsImV4cCI6MjA4NzIzNTIyN30.p2tQfvkTppxGfadpWbJtFaIlYhSe7YKfgv4YbtUEC5w"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"creator\": \"{{$node['Code in JavaScript4'].json.final_payload.creator}}\",\n  \"video_id\": \"{{$node['Code in JavaScript4'].json.final_payload.video_id}}\",\n  \"video_link\": \"{{$json.public_url}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1888,
+        0
+      ],
+      "id": "917e7d54-8fd6-4b8a-9fc8-1348c575d258",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  const creator = item.json.final_payload.creator;\n  const videoId = item.json.final_payload.video_id;\n\n  const fakeVideoContent = `\n  AI Avatar Video\n  Creator: ${creator}\n  Video ID: ${videoId}\n  Generated at: ${new Date().toISOString()}\n  `;\n\n  item.binary = {\n    data: {\n      data: Buffer.from(fakeVideoContent).toString('base64'),\n      mimeType: 'video/mp4',\n      fileName: `${videoId}_${Date.now()}.mp4`\n    }\n  };\n\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        0
+      ],
+      "id": "673303f6-701c-4ac2-8064-b0a150a83987",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://mubhvlldetkfdjdbseid.supabase.co/storage/v1/object/generated-videos/{{$binary.data.fileName}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY1OTIyNywiZXhwIjoyMDg3MjM1MjI3fQ.Muep7IIjaWVGToysf5aLGOQgJ7B5LWE_BgO_7m8-VkQ"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY1OTIyNywiZXhwIjoyMDg3MjM1MjI3fQ.Muep7IIjaWVGToysf5aLGOQgJ7B5LWE_BgO_7m8-VkQ"
+            },
+            {
+              "name": "Content-Type",
+              "value": "video/mp4"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1600,
+        0
+      ],
+      "id": "e84a8500-a25e-497d-a8c3-00418746bb50",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const key = $json.Key;\n\nconst publicUrl = `https://mubhvlldetkfdjdbseid.supabase.co/storage/v1/object/public/${key}`;\n\nreturn [\n  {\n    json: {\n      public_url: publicUrl\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1744,
+        0
+      ],
+      "id": "c2802711-7499-46d4-973a-d4355047064f",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert YouTube short script writer.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Write a 60-second engaging YouTube short script in the voice and style of {{$json.creator_name}}. Strong hook in first 5 seconds. Under 160 words.\"\n    }\n  ],\n  \"temperature\": 0.7\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        384,
+        0
+      ],
+      "id": "fb9c46b7-47a9-4a5b-b9b6-7d5efe3dff51",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bcec35c3-ea4c-4b42-8643-dde65c3c16f1",
+              "name": "generated_script",
+              "value": "={{$json.choices[0].message.content}}",
+              "type": "string"
+            },
+            {
+              "id": "8288779d-de0a-4534-add5-9ca39b20544d",
+              "name": "creator_name",
+              "value": "={{$node[\"Edit Fields\"].json[\"creator_name\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "d58227eb-d2d1-4fe2-9d31-47d5f3ec8638",
+              "name": "youtube_url",
+              "value": "={{$node[\"Edit Fields\"].json[\"youtube_url\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "4cb3e9e3-4a29-4caa-bcc2-e6d4ff63b3be",
+              "name": "hook_line",
+              "value": "={{$json.choices[0].message.content.split(\"\\n\")[0]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        528,
+        0
+      ],
+      "id": "919683be-228c-4472-b5d6-213c0eb3d4a0",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-video",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              },
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        64,
+        0
+      ],
+      "id": "fd7f2edd-7933-4298-bf49-c2119987300b",
+      "name": "Webhook",
+      "webhookId": "8bbe21b1-586a-462f-b879-8e9b5768ce73"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{ JSON.stringify({\n  creator: $node[\"Edit Fields1\"].json.creator_name,\n  video_id: $node[\"Code in JavaScript4\"].json.final_payload.video_id,\n  script: $node[\"Edit Fields1\"].json.generated_script,\n  public_url: $node[\"Code in JavaScript5\"].json.public_url\n}) }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "Content-Type"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2032,
+        0
+      ],
+      "id": "ebfbf70c-e43d-43e7-8564-ce753507bca8",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "71c7bba3-9054-490b-9091-dd57f8c9a137",
+  "meta": {
+    "instanceId": "1e9efb604f557c4b5c58e62376faa1a9121f6a1f767ce3babe9e0a414efcea93"
+  },
+  "id": "aAXcWwkzV74qmqYY",
+  "tags": []
+}
