@@ -1,0 +1,1108 @@
+{
+  "name": "AI Avatar - Async Architecture",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dda36bb6-b03b-4c29-8ae9-6ea6445cc4e5",
+              "name": "youtube_url",
+              "value": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+              "type": "string"
+            },
+            {
+              "id": "2f66ebb0-aeb5-47dc-9bf6-b92c28d1e075",
+              "name": "creator_name",
+              "value": "Rick Astley",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        -64
+      ],
+      "id": "c38a126d-2fa4-4b97-bb29-af4befade3f0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  const url = item.json.youtube_url;\n\n  const videoId = url.split(\"v=\")[1]?.split(\"&\")[0];\n\n  item.json.video_id = videoId;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        64
+      ],
+      "id": "9d628f46-636d-4178-b0b9-e542ba4bf598",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  const videoId = item.json.video_id;\n\n  const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;\n\n  item.json.thumbnail_url = thumbnailUrl;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        64
+      ],
+      "id": "a2fdd199-8eb4-4b5d-b955-8de10546fc9b",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "url": "={{$json.thumbnail_url}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1648,
+        64
+      ],
+      "id": "91f9c457-3e90-483f-b5a1-687fb83dcd80",
+      "name": "HTTP Request",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  const creator = item.json.creator_name;\n\n  const script = `\nHey everyone, this is ${creator}.\n\nToday I want to talk about something powerful.\n\nIf you're watching this, you're probably trying to improve your life in some way. And the truth is — growth is uncomfortable.\n\nSuccess doesn't come from motivation. It comes from discipline.\n\nEvery single day you either move forward or stay stuck.\n\nSo here's your reminder:\nStart small. Stay consistent. Trust the process.\n\nThe future version of you will thank you.\n`;\n\n  item.json.generated_script = script.trim();\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2560,
+        272
+      ],
+      "id": "8409afe8-d0e3-4948-a1d1-6a2e24117473",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  item.json.final_payload = {\n    creator: item.json.creator_name,\n    video_id: item.json.video_id,\n    script: item.json.generated_script,\n    assets: {\n      thumbnail: item.binary?.data?.fileName || \"thumbnail.jpg\"\n    },\n    meta: {\n      generated_at: new Date().toISOString(),\n      system: \"AI Content Automation Engine v1\"\n    }\n  };\n\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2720,
+        272
+      ],
+      "id": "32c511e9-df15-4e54-8df0-391d59f62c74",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mubhvlldetkfdjdbseid.supabase.co/rest/v1/generated_videos",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTkyMjcsImV4cCI6MjA4NzIzNTIyN30.p2tQfvkTppxGfadpWbJtFaIlYhSe7YKfgv4YbtUEC5w"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2NTkyMjcsImV4cCI6MjA4NzIzNTIyN30.p2tQfvkTppxGfadpWbJtFaIlYhSe7YKfgv4YbtUEC5w"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"creator\": \"{{$node['Code in JavaScript4'].json.final_payload.creator}}\",\n  \"video_id\": \"{{$node['Code in JavaScript4'].json.final_payload.video_id}}\",\n  \"video_link\": \"{{$json.public_url}}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3312,
+        272
+      ],
+      "id": "df84d3bf-e8f3-4d1f-95b9-6ffcb7c62514",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of $input.all()) {\n\n  const creator = item.json.final_payload.creator;\n  const videoId = item.json.final_payload.video_id;\n\n  const fakeVideoContent = `\n  AI Avatar Video\n  Creator: ${creator}\n  Video ID: ${videoId}\n  Generated at: ${new Date().toISOString()}\n  `;\n\n  item.binary = {\n    data: {\n      data: Buffer.from(fakeVideoContent).toString('base64'),\n      mimeType: 'video/mp4',\n      fileName: `${videoId}_${Date.now()}.mp4`\n    }\n  };\n\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        272
+      ],
+      "id": "217ba4e7-00b3-438c-9d8e-4ecf7542b530",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://mubhvlldetkfdjdbseid.supabase.co/storage/v1/object/generated-videos/{{$binary.data.fileName}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY1OTIyNywiZXhwIjoyMDg3MjM1MjI3fQ.Muep7IIjaWVGToysf5aLGOQgJ7B5LWE_BgO_7m8-VkQ"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer  eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY1OTIyNywiZXhwIjoyMDg3MjM1MjI3fQ.Muep7IIjaWVGToysf5aLGOQgJ7B5LWE_BgO_7m8-VkQ"
+            },
+            {
+              "name": "Content-Type",
+              "value": "video/mp4"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3024,
+        272
+      ],
+      "id": "0f00f7ae-e10e-4a2d-893b-591717501853",
+      "name": "HTTP Request2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const key = $json.Key;\n\nconst publicUrl = `https://mubhvlldetkfdjdbseid.supabase.co/storage/v1/object/public/${key}`;\n\nreturn [\n  {\n    json: {\n      public_url: publicUrl\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3168,
+        272
+      ],
+      "id": "c575f545-8f95-493f-a061-edfa12e231c3",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an expert YouTube short script writer.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Write a 60-second engaging YouTube short script in the voice and style of {{$json.creator_name}}. Strong hook in first 5 seconds. Under 160 words.\"\n    }\n  ],\n  \"temperature\": 0.7\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        800,
+        -64
+      ],
+      "id": "c29d9e89-553a-44b0-a32f-5e90ddb8b606",
+      "name": "HTTP Request3",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bcec35c3-ea4c-4b42-8643-dde65c3c16f1",
+              "name": "generated_script",
+              "value": "={{$json.choices[0].message.content}}",
+              "type": "string"
+            },
+            {
+              "id": "8288779d-de0a-4534-add5-9ca39b20544d",
+              "name": "creator_name",
+              "value": "={{$node[\"Edit Fields\"].json[\"creator_name\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "d58227eb-d2d1-4fe2-9d31-47d5f3ec8638",
+              "name": "youtube_url",
+              "value": "={{$node[\"Edit Fields\"].json[\"youtube_url\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "4cb3e9e3-4a29-4caa-bcc2-e6d4ff63b3be",
+              "name": "hook_line",
+              "value": "={{$json.choices[0].message.content.split(\"\\n\")[0]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1216,
+        64
+      ],
+      "id": "c8a8851f-a2fb-4123-a66b-0638038b5d30",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        0
+      ],
+      "id": "8fbd7041-b63c-4100-93cc-aae30f86897a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "generated_videos",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{$node[\"HTTP Request4\"].json[\"id\"]}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "=completed"
+            },
+            {
+              "fieldId": "video_link",
+              "fieldValue": "={{$node[\"Code in JavaScript5\"].json[\"public_url\"]}}"
+            },
+            {
+              "fieldId": "finished_at",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            },
+            {
+              "fieldId": "duration_ms",
+              "fieldValue": "={{\n  new Date().getTime() -\n  new Date($json.started_at).getTime()\n}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3616,
+        160
+      ],
+      "id": "6888802a-8bf4-4ec2-932b-55449b705fba",
+      "name": "Update a row1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "semYKiohhWe6QVyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "00442c65-5704-4142-aca5-03d98e837f84",
+              "leftValue": "={{$json[\"error\"]}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        928,
+        -64
+      ],
+      "id": "375e50db-78ef-4d7b-9197-3ba99545df47",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "generated_videos",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{$node[\"HTTP Request4\"].json[\"id\"]}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "failed"
+            },
+            {
+              "fieldId": "error_message",
+              "fieldValue": "={{$json[\"error\"]?.[\"message\"] || \"Groq API failed\"}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        64
+      ],
+      "id": "b3211524-f7d2-4dc5-b729-aa5e5b8d457f",
+      "name": "Update a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "semYKiohhWe6QVyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "82f0db75-9717-4429-bea5-b3afff587df1",
+              "leftValue": "={{$json[\"error\"]}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1792,
+        64
+      ],
+      "id": "2a3a8b99-7419-4439-ace8-8f24590f8097",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "generated_videos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{$node[\"HTTP Request4\"].json[\"id\"]}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "failed"
+            },
+            {
+              "fieldId": "error_message",
+              "fieldValue": "={{$json[\"error\"]?.[\"message\"] || \"Video API failed\"}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        272
+      ],
+      "id": "a514fe05-01b3-4f05-841a-8f24ba468072",
+      "name": "Update a row3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "semYKiohhWe6QVyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c0873a37-c5ce-44f1-85c3-7d283778e784",
+              "leftValue": "={{$json[\"error\"]}} ",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3440,
+        272
+      ],
+      "id": "64b1d21e-6951-4261-bce6-69f7718f8491",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mubhvlldetkfdjdbseid.supabase.co/rest/v1/rpc/claim_next_video_job",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY1OTIyNywiZXhwIjoyMDg3MjM1MjI3fQ.Muep7IIjaWVGToysf5aLGOQgJ7B5LWE_BgO_7m8-VkQ"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY1OTIyNywiZXhwIjoyMDg3MjM1MjI3fQ.Muep7IIjaWVGToysf5aLGOQgJ7B5LWE_BgO_7m8-VkQ"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        368,
+        0
+      ],
+      "id": "45e1e52e-5692-4fd9-9078-3ac6409a962a",
+      "name": "HTTP Request4",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4e37fa87-a2ef-4a3b-8198-afe00777c547",
+              "leftValue": "={{$json.id}}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        496,
+        0
+      ],
+      "id": "d03c8c38-cde4-46bc-b85d-f28b01cf6ad5",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "033f6223-d024-46b6-a44f-d8dcbc13e5c5",
+              "leftValue": "={{$json.retry_count}}",
+              "rightValue": "={{$json.max_retries}}",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1984,
+        160
+      ],
+      "id": "61fb6a7c-eda6-43a1-a053-875e0b18b78c",
+      "name": "If4"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "generated_videos",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{$node[\"HTTP Request4\"].json[\"id\"]}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "retry_count",
+              "fieldValue": "={{ ($json.retry_count || 0) + 1 }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "pending "
+            },
+            {
+              "fieldId": "next_retry_at",
+              "fieldValue": "={{\n  new Date(\n    Date.now() +\n    (Math.pow(2, ($json.retry_count || 0) + 1) * 60 * 1000)\n  ).toISOString()\n}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        48
+      ],
+      "id": "36e65d69-4489-43ab-a1f7-b9056c9e8c99",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "semYKiohhWe6QVyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "dead_letter_jobs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "error_message",
+              "fieldValue": "={{$json.error || \"Processing failed\"}}"
+            },
+            {
+              "fieldId": "failed_at",
+              "fieldValue": "={{new Date().toISOString()}}"
+            },
+            {
+              "fieldId": "creator",
+              "fieldValue": "={{$json.creator}}"
+            },
+            {
+              "fieldId": "video_id",
+              "fieldValue": "={{$json.video_id}}"
+            },
+            {
+              "fieldId": "retry_count",
+              "fieldValue": "={{$json.retry_count}}"
+            },
+            {
+              "fieldId": "max_retries",
+              "fieldValue": "={{$json.max_retries}}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "failed_permanent"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        272
+      ],
+      "id": "4421198b-93f9-43cb-81d1-357ef8559b2b",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "semYKiohhWe6QVyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "generated_videos",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{$json.id}}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "failed_permanent"
+            },
+            {
+              "fieldId": "error_message",
+              "fieldValue": "={{$json.error || \"Max retries exceeded\"}}"
+            },
+            {
+              "fieldId": "finished_at",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            },
+            {
+              "fieldId": "duration_ms",
+              "fieldValue": "={{   new Date().getTime() -   new Date($json.started_at).getTime() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        272
+      ],
+      "id": "9c3eeaed-f882-4c71-9b9b-170bfb7c3a5d",
+      "name": "Update a row4",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "semYKiohhWe6QVyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mubhvlldetkfdjdbseid.supabase.co/rest/v1/rpc/reclaim_stuck_jobs",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY1OTIyNywiZXhwIjoyMDg3MjM1MjI3fQ.Muep7IIjaWVGToysf5aLGOQgJ7B5LWE_BgO_7m8-VkQ"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im11Ymh2bGxkZXRrZmRqZGJzZWlkIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MTY1OTIyNywiZXhwIjoyMDg3MjM1MjI3fQ.Muep7IIjaWVGToysf5aLGOQgJ7B5LWE_BgO_7m8-VkQ"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "f709ce4c-7aee-4321-b25f-5db9690419d5",
+      "name": "HTTP Request5",
+      "alwaysOutputData": false
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Update a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "If4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Update a row1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "If4": {
+      "main": [
+        [
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Update a row4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row4": {
+      "main": [
+        [
+          {
+            "node": "Update a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request5": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "c77cc9c9-2afb-4ed3-b98f-6fb0d6293683",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1e9efb604f557c4b5c58e62376faa1a9121f6a1f767ce3babe9e0a414efcea93"
+  },
+  "id": "8nqySSoUWtNY1UXn",
+  "tags": []
+}
